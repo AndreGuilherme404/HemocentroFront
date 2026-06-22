@@ -1,0 +1,35 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="header-hemocentro">
+      <h1>Hemocentro</h1>
+      <p>Acesso ao Sistema</p>
+    </div>
+
+    <form (ngSubmit)="entrar()">
+
+      <div class="input-group">
+        <label for="cpf">CPF</label>
+        <input
+          type="text"
+          id="cpf"
+          name="cpf"
+          [(ngModel)]="cpf"
+          placeholder="Digite seu CPF"
+          required>
+      </div>
+
+      <div class="input-group">
+        <label for="senha">Senha</label>
+        <input
+          type="password"
+          id="senha"
+          name="senha"
+          [(ngModel)]="senha"
+          placeholder="Digite sua senha"
+          required>
+      </div>
+
+      <button type="submit" class="btn-vermelho">Entrar</button>
+    </form>
+  </div>
+</div>
