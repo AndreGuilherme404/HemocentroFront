@@ -6,12 +6,10 @@ import { Router } from '@angular/router';
   selector: 'app-doador',
   imports: [],
   templateUrl: './doador.html',
-  styleUrl: './doador.css', // MESMO CSS
+  styleUrl: './doador.css', 
 })
 export class Doador {
-  
-  // No mundo real, isso viria do Login: Number(localStorage.getItem('pessoaId'))
-  // Deixei o ID 3 (Gabriel Bortoleto) fixo para você conseguir testar a filtragem agora!
+
   meuPessoaId: number = 3; 
   
   minhasColetas: any[] = [];

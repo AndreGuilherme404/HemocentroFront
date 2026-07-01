@@ -17,9 +17,7 @@ export class Funcionario {
   listaHemocentros: any[] = [];
   listaExamesGerais: any[] = [];
 
-  // =====================================
-  // MOTORES DE BUSCA (FILTROS REATIVOS)
-  // =====================================
+  
   termoBuscaDoador: string = '';
   termoBuscaColeta: string = '';
   termoBuscaLab: string = '';
@@ -52,13 +50,13 @@ export class Funcionario {
     );
   }
 
-  // Variáveis - Doador
+  // Doador
   nome!: string;
   cpf!: string;
   email!: string;
   hemocentroIdDoador!: number;
 
-  // Variáveis - Coleta (CRUD)
+  //Coleta 
   editandoColeta: boolean = false;
   idColetaEdicao!: number;
   dataColeta!: string; 
@@ -67,7 +65,7 @@ export class Funcionario {
   pessoaIdColeta!: number;
   tipoSanguineoColeta: string = ''; 
 
-  // Variáveis - Laboratório (Exames)
+  // (Exames)
   coletaSelecionada: any;
   examesDestaColeta: any[] = [];
   examesDisponiveisParaLancar: any[] = [];
@@ -104,9 +102,7 @@ export class Funcionario {
     this.http.get<any[]>('http://localhost:8080/exame').subscribe(res => this.listaExamesGerais = res);
   }
 
-  // ==========================================
-  // MÓDULO 1: DOADORES
-  // ==========================================
+  
   cadastrarDoador() {
     if (!this.nome || !this.cpf || !this.email || !this.hemocentroIdDoador) {
       alert("Por favor, preencha todos os campos do doador!");
@@ -132,9 +128,7 @@ export class Funcionario {
     });
   }
 
-  // ==========================================
-  // MÓDULO 2: GESTÃO DE COLETAS
-  // ==========================================
+ 
   listarColetas() {
     this.http.get<any[]>('http://localhost:8080/coleta').subscribe(res => {
       this.listaColetas = res;
@@ -218,9 +212,7 @@ export class Funcionario {
     this.tipoSanguineoColeta = '';
   }
 
-  // ==========================================
-  // MÓDULO 3: LABORATÓRIO (EXAMES)
-  // ==========================================
+
   abrirExames(coleta: any) {
     this.coletaSelecionada = coleta;
     this.carregarExamesDaColeta(coleta.id);

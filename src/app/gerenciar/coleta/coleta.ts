@@ -18,19 +18,19 @@ export class Coleta {
   listaHemocentros: any[] = [];
   listaExamesGerais: any[] = [];
   
-  // NOVIDADE: Motor de Busca
+  // Motor de Busca
   termoBusca: string = '';
 
-  // Variáveis - Coleta (CRUD Completo)
+  // Coleta 
   editandoColeta: boolean = false;
   idColetaEdicao!: number;
   dataColeta!: string; 
   dataValidade!: string;
   hemocentroId!: number;
   pessoaId!: number;
-  tipoSanguineoColeta: string = ''; // Tipagem direto na bolsa
+  tipoSanguineoColeta: string = ''; 
 
-  // Variáveis - Laboratório
+  // Laboratório
   coletaSelecionada: any;
   examesDestaColeta: any[] = [];
   examesDisponiveisParaLancar: any[] = []; 
@@ -67,7 +67,7 @@ export class Coleta {
     });
   }
 
-  // NOVIDADE: Filtro dinâmico e reativo para a tabela
+
   get coletasFiltradas() {
     if (!this.termoBusca) return this.listaColetas;
     const termo = this.termoBusca.toLowerCase();
