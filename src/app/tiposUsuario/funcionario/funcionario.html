@@ -1,9 +1,5 @@
 <div class="gerenciar-container">
-  <div class="header-gerenciar" style="justify-content: space-between;">
-    <h2>Painel Operacional</h2>
-    <button class="btn-perigo" (click)="sair()">Sair do Sistema</button>
-  </div>
-
+  
   <div class="abas-navegacao">
     <button [class.ativa]="abaPrincipal === 'doadores'" (click)="mudarAbaPrincipal('doadores')">👥 Doadores</button>
     <button [class.ativa]="abaPrincipal === 'coletas'" (click)="mudarAbaPrincipal('coletas')">🩸 Gestão de Coletas</button>
