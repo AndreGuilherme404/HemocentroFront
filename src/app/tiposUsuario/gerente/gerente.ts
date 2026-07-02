@@ -8,32 +8,45 @@ import { Router } from '@angular/router';
   styleUrl: './gerente.css',
 })
 export class Gerente {
-  constructor(private router: Router){};
+  constructor(private router: Router) {
+    const usuarioString = localStorage.getItem('usuarioLogado');
 
-  gerenciarHemocentro(){
+    if (!usuarioString) {
+      this.sair();
+      return;
+    }
+  }
+
+  sair() {
+    localStorage.clear();
+    sessionStorage.clear();
+    this.router.navigate(['/login']);
+  }
+
+  gerenciarHemocentro() {
     this.router.navigate(['/gerenciarHemocentro']);
   }
-  
-  gerenciarExame(){
+
+  gerenciarExame() {
     this.router.navigate(['/gerenciarExame']);
   }
-  
-  gerenciarPessoa(){
+
+  gerenciarPessoa() {
     this.router.navigate(['/gerenciarPessoa']);
   }
-  
-  gerenciarUsuario(){
+
+  gerenciarUsuario() {
     this.router.navigate(['/gerenciarUsuario']);
   }
-  
-  gerenciarColeta(){
+
+  gerenciarColeta() {
     this.router.navigate(['/gerenciarColeta']);
   }
 
   air() {
-    localStorage.clear(); 
-    sessionStorage.clear(); 
+    localStorage.clear();
+    sessionStorage.clear();
 
-    this.router.navigate(['/login']); 
+    this.router.navigate(['/login']);
   }
 }

@@ -11,10 +11,13 @@ import { Router } from '@angular/router';
 })
 export class Usuario {
   abaAtual: string = 'listar';
-  
+  loginBusca: string = '';
+  resultadosLogin: any[] = [];
   idBusca!: number;
   busca: any;
-  
+
+  meuPessoaId!: number;
+
   // Listas
   listaUsuarios: any[] = [];
   listaPessoas: any[] = [];
@@ -34,15 +37,37 @@ export class Usuario {
   get usuariosFiltrados() {
     if (!this.termoBusca) return this.listaUsuarios;
     const t = this.termoBusca.toLowerCase();
-    return this.listaUsuarios.filter(u => 
-      u.id.toString().includes(t) || 
-      (u.login && u.login.toLowerCase().includes(t)) || 
+    return this.listaUsuarios.filter(u =>
+      u.id.toString().includes(t) ||
+      (u.login && u.login.toLowerCase().includes(t)) ||
       (u.tipoPerfil && u.tipoPerfil.toLowerCase().includes(t))
     );
   }
 
-  constructor(private http: HttpClient, private cdr: ChangeDetectorRef, private router: Router) {
+      constructor(private http: HttpClient, private cdr: ChangeDetectorRef, private router: Router) {
+    const usuarioString = localStorage.getItem('usuarioLogado');
+
+    if (!usuarioString) {
+      this.sair();
+      return;
+    }
+
+    const usuarioLogado = JSON.parse(usuarioString);
+    this.meuPessoaId = usuarioLogado.pessoaId;
+
+    if (!this.meuPessoaId) {
+      alert("Erro: Este usuário não possui um ID de gerente vinculado.");
+      this.sair();
+      return;
+    }
+
     this.listarTudo();
+  }
+
+  sair() {
+    localStorage.clear();
+    sessionStorage.clear();
+    this.router.navigate(['/login']);
   }
 
   voltarParaPainel(): void {
@@ -98,6 +123,28 @@ export class Usuario {
     });
   }
 
+  buscarPorLogin(): void {
+    this.busca = null;
+    this.resultadosLogin = [];
+
+    if (!this.loginBusca.trim()) {
+      alert("Digite um login para buscar.");
+      return;
+    }
+
+    const termo = this.loginBusca.toLowerCase();
+
+    this.resultadosLogin = this.listaUsuarios.filter(usuario =>
+      usuario.login && usuario.login.toLowerCase().includes(termo)
+    );
+
+    if (this.resultadosLogin.length === 0) {
+      alert("Nenhum usuário encontrado com esse login.");
+    } else {
+      this.cdr.detectChanges();
+    }
+  }
+
   criar(): void {
     const request = {
       login: this.login,
@@ -125,7 +172,7 @@ export class Usuario {
     this.login = usuario.login;
     this.senha = ""; // vazio por segurança
     this.tipoPerfil = usuario.tipoPerfil;
-    
+
     this.pessoaId = usuario.pessoa ? usuario.pessoa.id : usuario.pessoaId;
     this.hemocentroId = usuario.hemocentro ? usuario.hemocentro.id : usuario.hemocentroId;
 

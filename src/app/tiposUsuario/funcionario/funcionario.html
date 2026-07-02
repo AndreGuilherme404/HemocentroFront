@@ -106,7 +106,7 @@
             @for (c of coletasFiltradas; track c.id) {
               <tr>
                 <td><strong>#{{c.id}}</strong></td><td>{{c.dataColeta}}</td><td>{{c.dataValidade}}</td>
-                <td><span style="color: #d32f2f; font-weight: bold;">{{c.tipoSanguineo || 'Não Definido'}}</span></td>
+                <td><span style="color: #d32f2f; font-weight: bold;">{{ obterLabelTipoSanguineo(c.tipoSanguineo) }}</span></td>
                 <td>
                   <button class="btn-tabela-editar" (click)="prepararEdicaoColeta(c)">✏️ Editar</button>
                   <button class="btn-tabela-deletar" (click)="excluirColeta(c.id)">🗑️ Deletar</button>

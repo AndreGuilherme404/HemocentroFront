@@ -6,19 +6,35 @@ import { Router } from '@angular/router';
   selector: 'app-doador',
   imports: [],
   templateUrl: './doador.html',
-  styleUrl: './doador.css', 
+  styleUrl: './doador.css',
 })
 export class Doador {
 
-  meuPessoaId: number = 3; 
-  
+  meuPessoaId!: number;
   minhasColetas: any[] = [];
   examesDaColetaAberta: any[] = [];
   coletaAbertaId: number = 0;
 
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef, private router: Router) {
+    const usuarioString = localStorage.getItem('usuarioLogado');
+
+    if (!usuarioString) {
+      this.sair();
+      return;
+    }
+
+    const usuarioLogado = JSON.parse(usuarioString);
+    this.meuPessoaId = usuarioLogado.pessoaId;
+
+    if (!this.meuPessoaId) {
+      alert("Erro: Este usuário não possui um ID de funcionário vinculado.");
+      this.sair();
+      return;
+    }
+
     this.buscarMinhasDoacoes();
   }
+
 
   sair() {
     localStorage.clear();
@@ -27,6 +43,8 @@ export class Doador {
   }
 
   buscarMinhasDoacoes() {
+    this.coletaAbertaId = 0;
+    this.examesDaColetaAberta = [];
     this.http.get<any[]>('http://localhost:8080/coleta').subscribe(res => {
       // FILTRO DE SEGURANÇA: O Doador só enxerga as coletas que têm o ID de Pessoa dele!
       this.minhasColetas = res.filter(coleta => coleta.pessoaId === this.meuPessoaId);

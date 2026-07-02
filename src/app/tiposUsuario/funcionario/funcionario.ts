@@ -7,17 +7,17 @@ import { Router } from '@angular/router';
   selector: 'app-funcionario',
   imports: [FormsModule],
   templateUrl: './funcionario.html',
-  styleUrl: './funcionario.css', 
+  styleUrl: './funcionario.css',
 })
 export class Funcionario {
-  abaPrincipal: string = 'coletas'; 
-  
+  abaPrincipal: string = 'coletas';
+  meuPessoaId!: number;
   listaDoadores: any[] = [];
   listaColetas: any[] = [];
   listaHemocentros: any[] = [];
   listaExamesGerais: any[] = [];
 
-  
+
   termoBuscaDoador: string = '';
   termoBuscaColeta: string = '';
   termoBuscaLab: string = '';
@@ -25,8 +25,8 @@ export class Funcionario {
   get doadoresFiltrados() {
     if (!this.termoBuscaDoador) return this.listaDoadores;
     const t = this.termoBuscaDoador.toLowerCase();
-    return this.listaDoadores.filter(d => 
-      d.id.toString().includes(t) || d.nome.toLowerCase().includes(t) || 
+    return this.listaDoadores.filter(d =>
+      d.id.toString().includes(t) || d.nome.toLowerCase().includes(t) ||
       d.cpf.includes(t) || d.email.toLowerCase().includes(t)
     );
   }
@@ -34,9 +34,9 @@ export class Funcionario {
   get coletasFiltradas() {
     if (!this.termoBuscaColeta) return this.listaColetas;
     const t = this.termoBuscaColeta.toLowerCase();
-    return this.listaColetas.filter(c => 
-      c.id.toString().includes(t) || c.dataColeta.includes(t) || 
-      c.pessoaId.toString().includes(t) || 
+    return this.listaColetas.filter(c =>
+      c.id.toString().includes(t) || c.dataColeta.includes(t) ||
+      c.pessoaId.toString().includes(t) ||
       (c.tipoSanguineo && c.tipoSanguineo.toLowerCase().includes(t))
     );
   }
@@ -44,8 +44,8 @@ export class Funcionario {
   get coletasLabFiltradas() {
     if (!this.termoBuscaLab) return this.listaColetas;
     const t = this.termoBuscaLab.toLowerCase();
-    return this.listaColetas.filter(c => 
-      c.id.toString().includes(t) || c.dataColeta.includes(t) || 
+    return this.listaColetas.filter(c =>
+      c.id.toString().includes(t) || c.dataColeta.includes(t) ||
       (c.tipoSanguineo && c.tipoSanguineo.toLowerCase().includes(t))
     );
   }
@@ -59,11 +59,11 @@ export class Funcionario {
   //Coleta 
   editandoColeta: boolean = false;
   idColetaEdicao!: number;
-  dataColeta!: string; 
+  dataColeta!: string;
   dataValidade!: string;
   hemocentroIdColeta!: number;
   pessoaIdColeta!: number;
-  tipoSanguineoColeta: string = ''; 
+  tipoSanguineoColeta: string = '';
 
   // (Exames)
   coletaSelecionada: any;
@@ -78,6 +78,22 @@ export class Funcionario {
   ];
 
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef, private router: Router) {
+    const usuarioString = localStorage.getItem('usuarioLogado');
+
+    if (!usuarioString) {
+      this.sair();
+      return;
+    }
+
+    const usuarioLogado = JSON.parse(usuarioString);
+    this.meuPessoaId = usuarioLogado.pessoaId;
+
+    if (!this.meuPessoaId) {
+      alert("Erro: Este usuário não possui um ID de funcionário vinculado.");
+      this.sair();
+      return;
+    }
+
     this.carregarDadosBase();
     this.listarColetas();
   }
@@ -102,7 +118,7 @@ export class Funcionario {
     this.http.get<any[]>('http://localhost:8080/exame').subscribe(res => this.listaExamesGerais = res);
   }
 
-  
+
   cadastrarDoador() {
     if (!this.nome || !this.cpf || !this.email || !this.hemocentroIdDoador) {
       alert("Por favor, preencha todos os campos do doador!");
@@ -113,7 +129,7 @@ export class Funcionario {
       next: (pessoaCriada) => {
         const loginFormatado = this.nome.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").split(' ').join('.');
         const requestUsuario = {
-          login: loginFormatado, senha: this.cpf, tipoPerfil: 'USUARIO', 
+          login: loginFormatado, senha: this.cpf, tipoPerfil: 'USUARIO',
           pessoaId: pessoaCriada.id, hemocentroId: Number(this.hemocentroIdDoador)
         };
         this.http.post('http://localhost:8080/usuario', requestUsuario).subscribe({
@@ -128,7 +144,7 @@ export class Funcionario {
     });
   }
 
- 
+
   listarColetas() {
     this.http.get<any[]>('http://localhost:8080/coleta').subscribe(res => {
       this.listaColetas = res;
@@ -138,13 +154,13 @@ export class Funcionario {
 
   formatarDataParaBackend(dataHTML: string): string {
     const p = dataHTML.split('-');
-    return `${p[2]}-${p[1]}-${p[0]}`; 
+    return `${p[2]}-${p[1]}-${p[0]}`;
   }
 
   formatarDataParaHTML(dataBackend: string): string {
     if (!dataBackend) return '';
     const p = dataBackend.split('-');
-    return `${p[2]}-${p[1]}-${p[0]}`; 
+    return `${p[2]}-${p[1]}-${p[0]}`;
   }
 
   salvarColeta() {
@@ -158,7 +174,7 @@ export class Funcionario {
       dataValidade: this.formatarDataParaBackend(this.dataValidade),
       hemocentroId: Number(this.hemocentroIdColeta),
       pessoaId: Number(this.pessoaIdColeta),
-      tipoSanguineo: this.tipoSanguineoColeta || null 
+      tipoSanguineo: this.tipoSanguineoColeta || null
     };
 
     if (this.editandoColeta) {
@@ -187,7 +203,7 @@ export class Funcionario {
     this.dataValidade = this.formatarDataParaHTML(coleta.dataValidade);
     this.pessoaIdColeta = coleta.pessoaId;
     this.hemocentroIdColeta = coleta.hemocentroId;
-    this.tipoSanguineoColeta = coleta.tipoSanguineo || ''; 
+    this.tipoSanguineoColeta = coleta.tipoSanguineo || '';
   }
 
   excluirColeta(id: number) {
@@ -270,5 +286,11 @@ export class Funcionario {
         this.carregarExamesDaColeta(this.coletaSelecionada.id);
       }
     });
+  }
+
+  obterLabelTipoSanguineo(valorEnum: string): string {
+    if (!valorEnum) return 'Pendente';
+    const tipo = this.listaTiposSanguineos.find(t => t.valor === valorEnum);
+    return tipo ? tipo.label : valorEnum;
   }
 }

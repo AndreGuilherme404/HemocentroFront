@@ -10,11 +10,11 @@ import { FormsModule} from '@angular/forms';
   styleUrl: './login.css',
 })
 export class Login {
-  cpf: string = "";
+  login: string = "";
   senha: string = "";
   constructor(private authService: Auth, private router: Router){}
   entrar(){
-    this.authService.fazerLogin(this.cpf, this.senha).subscribe({
+    this.authService.fazerLogin(this.login, this.senha).subscribe({
       next: (resposta: any) => {
         console.log("DEU CERTO, RESPOSTA DO SPRING:", resposta);
         localStorage.setItem('usuarioLogado', JSON.stringify(resposta));

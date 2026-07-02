@@ -7,33 +7,35 @@ import { Router } from '@angular/router';
   selector: 'app-coleta',
   imports: [FormsModule],
   templateUrl: './coleta.html',
-  styleUrl: './coleta.css', 
+  styleUrl: './coleta.css',
 })
 export class Coleta {
   // Abas separadas e limpas
-  abaAtual: string = 'listar'; 
-  
+  abaAtual: string = 'listar';
+
+  meuPessoaId!: number;
+
   listaColetas: any[] = [];
   listaPessoas: any[] = [];
   listaHemocentros: any[] = [];
   listaExamesGerais: any[] = [];
-  
+
   // Motor de Busca
   termoBusca: string = '';
 
   // Coleta 
   editandoColeta: boolean = false;
   idColetaEdicao!: number;
-  dataColeta!: string; 
+  dataColeta!: string;
   dataValidade!: string;
   hemocentroId!: number;
   pessoaId!: number;
-  tipoSanguineoColeta: string = ''; 
+  tipoSanguineoColeta: string = '';
 
   // Laboratório
   coletaSelecionada: any;
   examesDestaColeta: any[] = [];
-  examesDisponiveisParaLancar: any[] = []; 
+  examesDisponiveisParaLancar: any[] = [];
 
   listaTiposSanguineos = [
     { valor: 'A_POSITIVO', label: 'A+' }, { valor: 'A_NEGATIVO', label: 'A-' },
@@ -43,8 +45,30 @@ export class Coleta {
   ];
 
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef, private router: Router) {
+    const usuarioString = localStorage.getItem('usuarioLogado');
+
+    if (!usuarioString) {
+      this.sair();
+      return;
+    }
+
+    const usuarioLogado = JSON.parse(usuarioString);
+    this.meuPessoaId = usuarioLogado.pessoaId;
+
+    if (!this.meuPessoaId) {
+      alert("Erro: Este usuário não possui um ID de gerente vinculado.");
+      this.sair();
+      return;
+    }
+
     this.carregarDadosBase();
     this.listar();
+  }
+
+  sair() {
+    localStorage.clear();
+    sessionStorage.clear();
+    this.router.navigate(['/login']);
   }
 
   voltarParaPainel() { this.router.navigate(['/gerente']); }
@@ -71,9 +95,9 @@ export class Coleta {
   get coletasFiltradas() {
     if (!this.termoBusca) return this.listaColetas;
     const termo = this.termoBusca.toLowerCase();
-    return this.listaColetas.filter(c => 
-      c.id.toString().includes(termo) || 
-      c.dataColeta.includes(termo) || 
+    return this.listaColetas.filter(c =>
+      c.id.toString().includes(termo) ||
+      c.dataColeta.includes(termo) ||
       c.pessoaId.toString().includes(termo) ||
       (c.tipoSanguineo && c.tipoSanguineo.toLowerCase().includes(termo))
     );
@@ -82,13 +106,13 @@ export class Coleta {
   formatarDataParaBackend(dataHTML: string): string {
     if (!dataHTML) return '';
     const partes = dataHTML.split('-');
-    return `${partes[2]}-${partes[1]}-${partes[0]}`; 
+    return `${partes[2]}-${partes[1]}-${partes[0]}`;
   }
 
   formatarDataParaHTML(dataBackend: string): string {
     if (!dataBackend) return '';
     const p = dataBackend.split('-');
-    return `${p[2]}-${p[1]}-${p[0]}`; 
+    return `${p[2]}-${p[1]}-${p[0]}`;
   }
 
   salvarColeta() {
@@ -215,5 +239,16 @@ export class Coleta {
         this.carregarExamesDaColeta(this.coletaSelecionada.id);
       }
     });
+  }
+
+  obterNomePessoa(pessoaId: number): string {
+    const pessoa = this.listaPessoas.find(p => p.id === pessoaId);
+    return pessoa ? pessoa.nome : 'Desconhecido';
+  }
+
+  obterLabelTipoSanguineo(valorEnum: string): string {
+    if (!valorEnum) return 'Pendente';
+    const tipo = this.listaTiposSanguineos.find(t => t.valor === valorEnum);
+    return tipo ? tipo.label : valorEnum;
   }
 }

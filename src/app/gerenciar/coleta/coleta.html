@@ -26,14 +26,14 @@
 
         <table class="tabela-dados">
           <thead>
-            <tr><th>Lote ID</th><th>Data Coleta</th><th>Vencimento</th><th>Doador (ID)</th><th>Tipo</th><th style="text-align: center;">Ações</th></tr>
+            <tr><th>Lote ID</th><th>Data Coleta</th><th>Vencimento</th><th>Doador</th><th>Tipo</th><th style="text-align: center;">Ações</th></tr>
           </thead>
           <tbody>
             @for (c of coletasFiltradas; track c.id) {
               <tr>
                 <td><strong>#{{c.id}}</strong></td><td>{{c.dataColeta}}</td><td>{{c.dataValidade}}</td>
-                <td>Pessoa: {{c.pessoaId}}</td>
-                <td><span style="color: #d32f2f; font-weight: bold;">{{c.tipoSanguineo || 'Pendente'}}</span></td>
+                <td>{{ obterNomePessoa(c.pessoaId) }}</td>
+                <td><span style="color: #d32f2f; font-weight: bold;">{{ obterLabelTipoSanguineo(c.tipoSanguineo) }}</span></td>
                 <td style="text-align: center;">
                   <button class="btn-acao" style="font-size: 11px; padding: 5px;" (click)="abrirGerenciadorDeExames(c)">🔬 Lab</button>
                   <button class="btn-tabela-editar" style="font-size: 11px; padding: 5px;" (click)="prepararEdicaoColeta(c)">✏️</button>

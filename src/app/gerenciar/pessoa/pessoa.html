@@ -6,118 +6,159 @@
 
   <div class="abas-navegacao">
     <button [class.ativa]="abaAtual === 'listar'" (click)="mudarAba('listar')">📄 Listar Todos</button>
-    <button [class.ativa]="abaAtual === 'buscar'" (click)="mudarAba('buscar')">🔍 Buscar Específico (ID)</button>
+    <button [class.ativa]="abaAtual === 'buscar'" (click)="mudarAba('buscar')">🔍 Buscar</button>
     <button [class.ativa]="abaAtual === 'criar'" (click)="mudarAba('criar')">➕ Cadastrar Nova</button>
   </div>
 
   <div class="conteudo-aba">
 
     @if (abaAtual === 'listar') {
-      <div class="aba-card">
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-          <h3 style="margin: 0;">Lista de Pessoas Cadastradas</h3>
-          <div style="display: flex; gap: 10px; align-items: center;">
-            <label style="font-size: 14px; color: #555;">🔍 Filtrar:</label>
-            <input type="text" [(ngModel)]="termoBusca" placeholder="ID, Nome, CPF ou E-mail..." 
-                   style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 250px;">
-          </div>
-        </div>
+    <div class="aba-card">
 
-        <table class="tabela-dados">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="margin: 0;">Lista de Pessoas Cadastradas</h3>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <label style="font-size: 14px; color: #555;">🔍 Filtrar:</label>
+          <input type="text" [(ngModel)]="termoBusca" placeholder="ID, Nome, CPF ou E-mail..."
+            style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 250px;">
+        </div>
+      </div>
+
+      <table class="tabela-dados">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>CPF</th>
+            <th>E-mail</th>
+            <th style="text-align: center;">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (pessoa of pessoasFiltradas; track pessoa.id){
+          <tr>
+            <td>{{pessoa.id}}</td>
+            <td><strong>{{pessoa.nome}}</strong></td>
+            <td>{{pessoa.cpf}}</td>
+            <td>{{pessoa.email}}</td>
+            <td style="text-align: center;">
+              <button type="button" class="btn-tabela-editar" (click)="prepararEdicao(pessoa)">✏️ Editar</button>
+              <button type="button" class="btn-tabela-deletar"
+                (click)="deletarComConfirmacao(pessoa.id, pessoa.nome)">🗑️ Excluir</button>
+            </td>
+          </tr>
+          }
+          @if (pessoasFiltradas.length === 0) {
+          <tr>
+            <td colspan="5" style="text-align: center; color: #888;">Nenhuma pessoa encontrada na busca.</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+
+    @if (abaAtual === 'buscar') {
+    <div class="aba-card">
+      <h3>Buscar Pessoa pelo ID</h3>
+      <div class="form-grupo row">
+        <input type="number" [(ngModel)]="idBusca" name="idBusca" placeholder="Digite o ID exato da Pessoa">
+        <button type="button" class="btn-acao" (click)="buscar()">Buscar ID</button>
+      </div>
+
+      <hr style="margin: 25px 0; border: 0; border-top: 1px solid #eee;">
+
+      <h3>Buscar Pessoa pelo Nome</h3>
+      <div class="form-grupo row">
+        <input type="text" [(ngModel)]="nomeBusca" name="nomeBusca" placeholder="Digite o nome (completo ou parte)">
+        <button type="button" class="btn-acao" (click)="buscarPorNome()">Buscar Nome</button>
+      </div>
+
+      @if (busca) {
+      <div class="resultado-box mt-20"
+        style="background: #f5f5f5; padding: 15px; border-radius: 5px; border-left: 4px solid #1565c0;">
+        <h4 style="margin-top: 0; color: #1565c0;">Pessoa Encontrada por ID:</h4>
+        <p><strong>ID:</strong> {{busca.id}}</p>
+        <p><strong>Nome:</strong> {{busca.nome}}</p>
+        <p><strong>CPF:</strong> {{busca.cpf}}</p>
+        <p><strong>E-mail:</strong> {{busca.email}}</p>
+      </div>
+      }
+
+      @if (resultadosNome && resultadosNome.length > 0) {
+      <div class="resultado-box mt-20"
+        style="background: #f5f5f5; padding: 15px; border-radius: 5px; border-left: 4px solid #2e7d32;">
+        <h4 style="margin-top: 0; color: #2e7d32;">Pessoas Encontradas por Nome:</h4>
+        <table class="tabela-dados" style="background: white; margin-top: 10px;">
           <thead>
             <tr>
               <th>ID</th>
               <th>Nome</th>
               <th>CPF</th>
               <th>E-mail</th>
-              <th style="text-align: center;">Ações</th>
             </tr>
           </thead>
           <tbody>
-            @for (pessoa of pessoasFiltradas; track pessoa.id){
-              <tr>
-                <td>{{pessoa.id}}</td>
-                <td><strong>{{pessoa.nome}}</strong></td>
-                <td>{{pessoa.cpf}}</td>
-                <td>{{pessoa.email}}</td>
-                <td style="text-align: center;">
-                  <button type="button" class="btn-tabela-editar" (click)="prepararEdicao(pessoa)">✏️ Editar</button>
-                  <button type="button" class="btn-tabela-deletar" (click)="deletarComConfirmacao(pessoa.id, pessoa.nome)">🗑️ Excluir</button>
-                </td>
-              </tr>
-            }
-            @if (pessoasFiltradas.length === 0) {
-              <tr><td colspan="5" style="text-align: center; color: #888;">Nenhuma pessoa encontrada na busca.</td></tr>
+            @for (pessoa of resultadosNome; track pessoa.id) {
+            <tr>
+              <td>{{pessoa.id}}</td>
+              <td><strong>{{pessoa.nome}}</strong></td>
+              <td>{{pessoa.cpf}}</td>
+              <td>{{pessoa.email}}</td>
+            </tr>
             }
           </tbody>
         </table>
       </div>
-    }
-
-    @if (abaAtual === 'buscar') {
-      <div class="aba-card">
-        <h3>Buscar Pessoa pelo ID </h3>
-        <div class="form-grupo row">
-          <input type="number" [(ngModel)]="idBusca" name="idBusca" placeholder="Digite o ID exato da Pessoa">
-          <button type="button" class="btn-acao" (click)="buscar()">Buscar</button>
-        </div>
-        
-        @if (busca) {
-          <div class="resultado-box mt-20" style="background: #f5f5f5; padding: 15px; border-radius: 5px;">
-            <p><strong>ID:</strong> {{busca.id}}</p>
-            <p><strong>Nome:</strong> {{busca.nome}}</p>
-            <p><strong>CPF:</strong> {{busca.cpf}}</p>
-            <p><strong>E-mail:</strong> {{busca.email}}</p>
-          </div>
-        }
-      </div>
+      }
+    </div>
     }
 
     @if (abaAtual === 'criar') {
-      <div class="aba-card">
-        <h3>Cadastrar Nova Pessoa</h3>
-        <form class="form-gerenciar">
-          <div class="form-grupo">
-            <label>Nome Completo:</label>
-            <input type="text" [(ngModel)]="nome" name="nome" placeholder="Ex: João da Silva">
-          </div>
-          <div class="form-grupo">
-            <label>CPF (Apenas números):</label>
-            <input type="text" [(ngModel)]="cpf" name="cpf" placeholder="Ex: 11122233344" maxlength="11">
-          </div>
-          <div class="form-grupo">
-            <label>E-mail:</label>
-            <input type="email" [(ngModel)]="email" name="email" placeholder="Ex: joao@email.com">
-          </div>
-          <button type="button" class="btn-sucesso mt-20" (click)="criar()">Salvar Cadastro</button>
-        </form>
-      </div>
+    <div class="aba-card">
+      <h3>Cadastrar Nova Pessoa</h3>
+      <form class="form-gerenciar">
+        <div class="form-grupo">
+          <label>Nome Completo:</label>
+          <input type="text" [(ngModel)]="nome" name="nome" placeholder="Ex: João da Silva">
+        </div>
+        <div class="form-grupo">
+          <label>CPF (Apenas números):</label>
+          <input type="text" [(ngModel)]="cpf" name="cpf" placeholder="Ex: 11122233344" maxlength="11">
+        </div>
+        <div class="form-grupo">
+          <label>E-mail:</label>
+          <input type="email" [(ngModel)]="email" name="email" placeholder="Ex: joao@email.com">
+        </div>
+        <button type="button" class="btn-sucesso mt-20" (click)="criar()">Salvar Cadastro</button>
+      </form>
+    </div>
     }
 
     @if (abaAtual === 'editar') {
-      <div class="aba-card">
-        <h3>Editar Pessoa</h3>
-        <form class="form-gerenciar mt-20">
-          <div class="form-grupo">
-            <label>Nome Completo:</label>
-            <input type="text" [(ngModel)]="nome" name="nomeEditar">
-          </div>
-          <div class="form-grupo">
-            <label>CPF:</label>
-            <input type="text" [(ngModel)]="cpf" name="cpfEditar" maxlength="11">
-          </div>
-          <div class="form-grupo">
-            <label>E-mail:</label>
-            <input type="email" [(ngModel)]="email" name="emailEditar">
-          </div>
+    <div class="aba-card">
+      <h3>Editar Pessoa</h3>
+      <form class="form-gerenciar mt-20">
+        <div class="form-grupo">
+          <label>Nome Completo:</label>
+          <input type="text" [(ngModel)]="nome" name="nomeEditar">
+        </div>
+        <div class="form-grupo">
+          <label>CPF:</label>
+          <input type="text" [(ngModel)]="cpf" name="cpfEditar" maxlength="11">
+        </div>
+        <div class="form-grupo">
+          <label>E-mail:</label>
+          <input type="email" [(ngModel)]="email" name="emailEditar">
+        </div>
 
-          <div style="display: flex; gap: 10px;" class="mt-20">
-            <button type="button" class="btn-sucesso" (click)="editar()">Atualizar Dados</button>
-            <button type="button" class="btn-perigo" style="width: auto; padding: 0 20px;" (click)="limparFormulario(); mudarAba('listar')">Cancelar</button>
-          </div>
-        </form>
-      </div>
+        <div style="display: flex; gap: 10px;" class="mt-20">
+          <button type="button" class="btn-sucesso" (click)="editar()">Atualizar Dados</button>
+          <button type="button" class="btn-perigo" style="width: auto; padding: 0 20px;"
+            (click)="limparFormulario(); mudarAba('listar')">Cancelar</button>
+        </div>
+      </form>
+    </div>
     }
 
   </div>

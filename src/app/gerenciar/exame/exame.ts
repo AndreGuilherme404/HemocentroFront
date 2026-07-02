@@ -11,6 +11,8 @@ import { Router } from '@angular/router';
 })
 export class Exame {
   abaAtual: string = 'listar';
+
+  meuPessoaId!: number;
   
   listaExames: any[] = [];
   idBusca!: number;
@@ -19,8 +21,30 @@ export class Exame {
   nome!: string;
   descricao!: string;
 
-  constructor(private http: HttpClient, private cdr: ChangeDetectorRef, private router: Router) {
+    constructor(private http: HttpClient, private cdr: ChangeDetectorRef, private router: Router) {
+    const usuarioString = localStorage.getItem('usuarioLogado');
+
+    if (!usuarioString) {
+      this.sair();
+      return;
+    }
+
+    const usuarioLogado = JSON.parse(usuarioString);
+    this.meuPessoaId = usuarioLogado.pessoaId;
+
+    if (!this.meuPessoaId) {
+      alert("Erro: Este usuário não possui um ID de gerente vinculado.");
+      this.sair();
+      return;
+    }
+
     this.listar();
+  }
+
+  sair() {
+    localStorage.clear();
+    sessionStorage.clear();
+    this.router.navigate(['/login']);
   }
 
   voltarParaPainel(): void {

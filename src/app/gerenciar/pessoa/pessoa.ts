@@ -11,10 +11,13 @@ import { Router } from '@angular/router';
 })
 export class Pessoa {
   abaAtual: string = 'listar';
-  
+  nomeBusca: string = '';
+  resultadosNome: any[] = [];
   idBusca!: number;
   busca: any;
   listaPessoas: any[] = [];
+  
+  meuPessoaId!: number;
 
   nome!: string;
   cpf!: string;
@@ -26,16 +29,38 @@ export class Pessoa {
   get pessoasFiltradas() {
     if (!this.termoBusca) return this.listaPessoas;
     const t = this.termoBusca.toLowerCase();
-    return this.listaPessoas.filter(p => 
-      p.id.toString().includes(t) || 
-      (p.nome && p.nome.toLowerCase().includes(t)) || 
-      (p.cpf && p.cpf.includes(t)) || 
+    return this.listaPessoas.filter(p =>
+      p.id.toString().includes(t) ||
+      (p.nome && p.nome.toLowerCase().includes(t)) ||
+      (p.cpf && p.cpf.includes(t)) ||
       (p.email && p.email.toLowerCase().includes(t))
     );
   }
 
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef, private router: Router) {
+    const usuarioString = localStorage.getItem('usuarioLogado');
+
+    if (!usuarioString) {
+      this.sair();
+      return;
+    }
+
+    const usuarioLogado = JSON.parse(usuarioString);
+    this.meuPessoaId = usuarioLogado.pessoaId;
+
+    if (!this.meuPessoaId) {
+      alert("Erro: Este usuário não possui um ID de gerente vinculado.");
+      this.sair();
+      return;
+    }
+
     this.listar();
+  }
+
+  sair() {
+    localStorage.clear();
+    sessionStorage.clear();
+    this.router.navigate(['/login']);
   }
 
   voltarParaPainel(): void {
@@ -76,6 +101,26 @@ export class Pessoa {
         alert("Pessoa não encontrada.");
       }
     });
+  }
+
+  buscarPorNome(): void {
+    this.busca = null;
+
+    if (!this.nomeBusca.trim()) {
+      alert("Digite um nome para buscar.");
+      return;
+    }
+
+    const termo = this.nomeBusca.toLowerCase();
+
+    // Filtra as pessoas que possuem o termo digitado no nome
+    this.resultadosNome = this.listaPessoas.filter(pessoa =>
+      pessoa.nome && pessoa.nome.toLowerCase().includes(termo)
+    );
+
+    if (this.resultadosNome.length === 0) {
+      alert("Nenhuma pessoa encontrada com esse nome.");
+    }
   }
 
   criar(): void {
